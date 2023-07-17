@@ -14,7 +14,7 @@ jobs:
       - name: Make arcctl executable
         run: chmod +x ./arcctl
       - name: Setup arcctl
-        run: ./arcctl set secretAccount --provider s3 --creds accessKeyId=${{secrets.ACCESS_KEY_ID}} --creds secretAccessKey=${{secrets.SECRET_ACCESS_KEY}} --creds endpoint=https://nyc3.digitaloceanspaces.com --creds region=nyc3 --namespace arcctl-backend
+        run: ./arcctl set state.backend --provider s3 --creds accessKeyId=${{secrets.ACCESS_KEY_ID}} --creds secretAccessKey=${{secrets.SECRET_ACCESS_KEY}} --creds endpoint=https://nyc3.digitaloceanspaces.com --creds region=nyc3 --namespace arcctl-backend
       - name: Test print accounts
         run: ./arcctl list account
       - name: Apply DC
