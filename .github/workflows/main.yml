@@ -18,4 +18,4 @@ jobs:
       - name: Test print accounts
         run: ./arcctl list account
       - name: Apply DC
-        run: ./arcctl apply dc local ./datacenter.yml
+        run: ./arcctl apply dc local ./datacenter.yml --auto-approve true
