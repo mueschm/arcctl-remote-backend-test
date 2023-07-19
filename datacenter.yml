@@ -1,3 +1,7 @@
+secrets:
+  account: s3
+  namespace: arcctl-backend
+
 resources:
   vpc:
     type: vpc
