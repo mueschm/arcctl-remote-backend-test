@@ -19,6 +19,17 @@ resources:
       - name: pool1
         count: 3
         nodeSize: s-1vcpu-2gb
+  namespace:
+    type: namespace
+    account: ${{ accounts.cluster.id }}
+    name: arcctl
+  nginx-ingress-controller:
+    type: helmChart
+    name: ingress-nginx
+    account: ${{ accounts.cluster.id }}
+    namespace: ${{ resources.namespace.id }}
+    repository: https://kubernetes.github.io/ingress-nginx
+    chart: ingress-nginx
 
 accounts:
   cluster:
@@ -29,28 +40,25 @@ accounts:
 
 environment:
   resources:
-    namespace:
+    env-namespace:
       type: namespace
       account: ${{ accounts.cluster.id }}
       name: ${{ environment.name }}
-    nginx-ingress-controller:
-      type: helmChart
-      name: ${{ environment.name }}-ingress-nginx
-      account: ${{ accounts.cluster.id }}
-      namespace: ${{ environment.resources.namespace.id }}
-      repository: https://kubernetes.github.io/ingress-nginx
-      chart: ingress-nginx
+    dns-zone:
+      type: dnsZone
+      name: ${{environment.name}}.muesch.me
+      account: do
 
   hooks:
     - when:
         type: secret
       account: secrets
     - when:
-        type: databaseSchema
+        type: database
         databaseType: postgres
       resources:
         db:
-          type: database
+          type: databaseCluster
           account: do
           name: ${{ this.id }}
           databaseVersion: ${{ this.inputs.databaseVersion }}
@@ -59,19 +67,19 @@ environment:
           vpc: ${{ resources.vpc.id }}
           region: nyc3
       account: do
-      database: ${{ this.resources.db.id }}
+      databaseCluster: ${{ this.resources.db.id }}
     - when:
         type: ingressRule
       resources:
         dnsRecord:
           type: dnsRecord
           account: do
-          dnsZone: muesch.me
+          dnsZone: ${{ environment.resources.dns-zone.id }}
           subdomain: ${{ this.inputs.subdomain }}
           recordType: A
           content: ${{ this.outputs.loadBalancerHostname }}
       registry: nginx
-      namespace: ${{ environment.resources.namespace.id }}
-      dnsZone: muesch.me
+      namespace: ${{ environment.resources.env-namespace.id }}
+      dnsZone: ${{ environment.resources.dns-zone.id }}
     - account: ${{ accounts.cluster.id }}
-      namespace: ${{ environment.resources.namespace.id }}
+      namespace: ${{ environment.resources.env-namespace.id }}
